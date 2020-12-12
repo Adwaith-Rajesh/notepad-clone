@@ -24,13 +24,21 @@ class Notepad(Tk):
 
         # the file menu
         self.file_menu = Menu(self.menu, tearoff=False)
-        self.file_menu.add_command(label="New")
-        self.file_menu.add_command(label="New Window")
-        self.file_menu.add_command(label="Open")
-        self.file_menu.add_command(label="Save")
-        self.file_menu.add_command(label="Save As")
+        self.file_menu.add_command(
+            label="New", command=lambda: self.menu_commands("file", "new"))
+        self.file_menu.add_command(
+            label="New Window",
+            command=lambda: self.menu_commands("file", "new-w"))
+        self.file_menu.add_command(
+            label="Open", command=lambda: self.menu_commands("file", "open"))
+        self.file_menu.add_command(
+            label="Save", command=lambda: self.menu_commands("file", "save"))
+        self.file_menu.add_command(
+            label="Save As",
+            command=lambda: self.menu_commands("file", "save-as"))
         self.file_menu.add_separator()
-        self.file_menu.add_command(label="Exit", command=self.quit)
+        self.file_menu.add_command(
+            label="Exit", command=lambda: self.menu_commands("file", "exit"))
 
         # The edit menu
         self.edit_menu = Menu(self.menu, tearoff=False)
@@ -99,8 +107,42 @@ class Notepad(Tk):
         self.text_area.config(yscrollcommand=self.y_scroll.set,
                               xscrollcommand=self.x_scroll)
 
-    # def test(self):
-    #     print(self.is_status_bar_checked.get())
+        # load all the binding
+
+        self.note_bindings()
+
+    def note_bindings(self):
+        self.bind_all("<Control-q>", self.exit_notepad)
+
+    def menu_commands(self, main_, sub_):
+        commands = {
+            "file": {
+                "new": print,
+                "new-w": "",
+                "open": "",
+                "save": "",
+                "save-as": "",
+                "exit": ""
+            },
+            "edit": {"cut", "copy", "paste", "delete", "select-all"},
+        }
+
+        commands[main_][sub_]("Hello World")
+
+    def new_options(self, _i: int):
+        pass
+
+    def save_options(self, _i: int):
+        pass
+
+    def edit_options(self, _i: int):
+        pass
+
+    def exit_notepad(self, event):
+        self.quit()
+
+    def test(self):
+        print(self.is_status_bar_checked.get())
 
 
 if __name__ == "__main__":
