@@ -131,7 +131,6 @@ class Notepad(Tk):
         self.bind_all("<Control-o>", lambda x: self.open_option())
         self.bind_all("<Control-n>", lambda X: self.new_options(0))
         self.bind_all("<Control-Shift-N>", lambda x: self.new_options(1))
-        self.bind_all("<Control-q>", self.exit_notepad)
 
     def menu_commands(self, main_, sub_):
         commands = {
@@ -143,7 +142,6 @@ class Notepad(Tk):
                 "save-as": "",
                 "exit": ""
             },
-            "edit": {"cut", "copy", "paste", "delete", "select-all"},
         }
         commands[main_][sub_]()
 
@@ -221,14 +219,8 @@ class Notepad(Tk):
                 self.text_area.edit_modified(False)
                 self.file_name_opened = open_file
 
-    def edit_options(self, _i: int):
-        pass
-
     def exit_notepad(self, event):
         self.quit()
-
-    def test(self):
-        print(self.is_status_bar_checked.get())
 
 
 if __name__ == "__main__":
