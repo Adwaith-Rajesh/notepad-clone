@@ -1,9 +1,13 @@
+import webbrowser
+
 from tkinter import *
 from tkinter import messagebox
 from tkinter import filedialog
 from tkinter.font import Font
 from tkinter.messagebox import *
 from tkinter.filedialog import askopenfile, askopenfilename, asksaveasfilename
+
+from tkfontchooser import askfont
 
 
 class Notepad(Tk):
@@ -61,7 +65,7 @@ class Notepad(Tk):
 
         # The format menu
         self.format_menu = Menu(self.menu, tearoff=False)
-        self.format_menu.add_command(label="Font")
+        self.format_menu.add_command(label="Font", command=self.font_chooser)
 
         # view menu
         self.view_menu = Menu(self.menu, tearoff=False)
@@ -74,7 +78,8 @@ class Notepad(Tk):
 
         # The help menu
         self.help_menu = Menu(self.menu, tearoff=False)
-        self.help_menu.add_command(label="About Notepad Clone")
+        self.help_menu.add_command(label="About Notepad Clone",
+                                   command=self.about_notepad_clone)
 
         # add the all the sub menu to the main menu bar
         self.menu.add_cascade(label="File", menu=self.file_menu)
@@ -218,6 +223,17 @@ class Notepad(Tk):
                 self.text_area.insert(0.0, f.read())
                 self.text_area.edit_modified(False)
                 self.file_name_opened = open_file
+
+    def font_chooser(self):
+        font = askfont(self)
+        if font:
+            new_font = Font(family=font["family"],
+                            size=font["size"],
+                            weight=font["weight"])
+            self.text_area.config(font=new_font)
+
+    def about_notepad_clone(self):
+        webbrowser.open("https://github.com/Adwaith-Rajesh/notepad-clone")
 
     def exit_notepad(self, event):
         self.quit()
