@@ -1,19 +1,25 @@
 from tkinter import *
+from tkinter import messagebox
+from tkinter import filedialog
 from tkinter.font import Font
 from tkinter.messagebox import *
-from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import askopenfile, askopenfilename, asksaveasfilename
 
 
 class Notepad(Tk):
     def __init__(self, *args, **kwargs):
         super(Notepad, self).__init__(*args, **kwargs)
 
-        self.file_name_opened = "*untitled.txt"
+        self.file_name_opened = "untitled"
+        self.file_select = False
 
-        self.title(f"{self.file_name_opened} Notepad -Clone Adwaith-Rajesh")
         self.geometry("700x500+100+50")
 
+        self.add_title()
         self.setup_menu_bar()
+
+    def add_title(self):
+        self.title(f"{self.file_name_opened} Notepad -Clone Adwaith-Rajesh")
 
     def setup_menu_bar(self):
         """ This method will make all the required menu bar """
@@ -97,7 +103,10 @@ class Notepad(Tk):
 
         self.text_area = Text(self.text_frame,
                               wrap=NONE,
-                              font=self.default_text_area_font)
+                              font=self.default_text_area_font,
+                              undo=True,
+                              maxundo=-1,
+                              autoseparators=True)
         self.text_area.pack(expand=True, fill=BOTH, side=LEFT)
 
         self.y_scroll = Scrollbar(self.text_frame,
@@ -117,47 +126,100 @@ class Notepad(Tk):
 
     def note_bindings(self):
         self.bind_all("<Control-q>", self.exit_notepad)
-        self.bind_all("<Control-s>", self.exit_notepad)
-        self.bind_all("<Control-Shift-S>", self.exit_notepad)
-        self.bind_all("<Control-o>", self.exit_notepad)
-        self.bind_all("<Control-n>", self.exit_notepad)
-        self.bind_all("<Control-Shift-N>", self.exit_notepad)
+        self.bind_all("<Control-s>", lambda x: self.save_options(0))
+        self.bind_all("<Control-Shift-S>", lambda x: self.save_options(1))
+        self.bind_all("<Control-o>", lambda x: self.open_option())
+        self.bind_all("<Control-n>", lambda X: self.new_options(0))
+        self.bind_all("<Control-Shift-N>", lambda x: self.new_options(1))
         self.bind_all("<Control-q>", self.exit_notepad)
 
     def menu_commands(self, main_, sub_):
-        print("in menu commands")
         commands = {
             "file": {
                 "new": lambda: self.new_options(0),
-                "new-w": "",
-                "open": "",
-                "save": "",
+                "new-w": lambda: self.new_options(1),
+                "open": self.open_option,
+                "save": lambda: self.save_options(0),
                 "save-as": "",
                 "exit": ""
             },
             "edit": {"cut", "copy", "paste", "delete", "select-all"},
         }
-
-        print(main_, sub_, commands[main_][sub_])
         commands[main_][sub_]()
 
     def new_options(self, _i: int):
-        print("New option", _i)
         # _i = 0 => open new file
         # _i = 1 => open a new window
 
         if _i == 0:
-            file_name = askopenfilename()
-            with open(file_name, "r") as f:
-                contents = f.read()
-                self.text_area.delete(0.0, END)
-                self.text_area.insert(0.0, contents)
-                # TODO: change the title
-                # TODO: Ask the user to save before changing the file
-        if _i == 1: ...
+            if self.text_area.edit_modified():
+                ans = askyesnocancel("Save",
+                                     "Would you like to save the file ?")
+                if ans:
+                    self.save_options(1)
+                    self.file_name_opened = "untitled"
+                    self.add_title()
+                    self.text_area.delete(0.0, END)
+                    self.text_area.edit_modified(False)
+
+                else:
+                    pass
+
+        if _i == 1:
+            # The new window option
+            Notepad().mainloop()
 
     def save_options(self, _i: int):
-        pass
+        # _i = 0 => if self.file_select then directly opens the file and writes
+        # _i = 1 => asks the user for the filename and then saves
+
+        if _i == 0:
+            print("SAVED")
+            if self.text_area.edit_modified() and "." in self.file_name_opened:
+                with open(self.file_name_opened, "w") as f:
+                    f.write(self.text_area.get(0.0, END))
+                    self.text_area.edit_modified(False)
+
+            else:
+                self.save_options(1)
+
+        if _i == 1:
+            # The save as option
+            filename = asksaveasfilename(initialfile=self.file_name_opened,
+                                         title="Save As",
+                                         defaultextension=".txt",
+                                         filetypes=(("All Files", "."), ))
+
+            if filename:
+                with open(filename, "w") as f:
+                    f.write(self.text_area.get(0.0, END))
+                self.file_name_opened = filename
+                self.add_title()
+                self.text_area.edit_modified(False)
+
+    def open_option(self):
+        if self.text_area.edit_modified():
+            ans = askyesnocancel(title="Save File",
+                                 message="Do you like to save the file")
+            if ans:
+                filename = asksaveasfilename(initialfile=self.file_name_opened)
+
+                if filename:
+                    with open(filename, "w") as f:
+                        f.write(self.text_area.get(0.0, END))
+                        self.open_read()
+
+        else:
+            self.open_read()
+
+    def open_read(self):
+        open_file = askopenfile(title="Open")
+        if open_file:
+            with open(open_file.name, "r") as f:
+                self.text_area.delete(0.0, END)
+                self.text_area.insert(0.0, f.read())
+                self.text_area.edit_modified(False)
+                self.file_name_opened = open_file
 
     def edit_options(self, _i: int):
         pass
