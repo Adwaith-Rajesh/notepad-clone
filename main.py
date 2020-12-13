@@ -1,12 +1,16 @@
 from tkinter import *
 from tkinter.font import Font
+from tkinter.messagebox import *
+from tkinter.filedialog import askopenfilename
 
 
 class Notepad(Tk):
     def __init__(self, *args, **kwargs):
         super(Notepad, self).__init__(*args, **kwargs)
 
-        self.title("Notepad -Clone Adwaith-Rajesh")
+        self.file_name_opened = "*untitled.txt"
+
+        self.title(f"{self.file_name_opened} Notepad -Clone Adwaith-Rajesh")
         self.geometry("700x500+100+50")
 
         self.setup_menu_bar()
@@ -113,11 +117,18 @@ class Notepad(Tk):
 
     def note_bindings(self):
         self.bind_all("<Control-q>", self.exit_notepad)
+        self.bind_all("<Control-s>", self.exit_notepad)
+        self.bind_all("<Control-Shift-S>", self.exit_notepad)
+        self.bind_all("<Control-o>", self.exit_notepad)
+        self.bind_all("<Control-n>", self.exit_notepad)
+        self.bind_all("<Control-Shift-N>", self.exit_notepad)
+        self.bind_all("<Control-q>", self.exit_notepad)
 
     def menu_commands(self, main_, sub_):
+        print("in menu commands")
         commands = {
             "file": {
-                "new": print,
+                "new": lambda: self.new_options(0),
                 "new-w": "",
                 "open": "",
                 "save": "",
@@ -127,10 +138,23 @@ class Notepad(Tk):
             "edit": {"cut", "copy", "paste", "delete", "select-all"},
         }
 
-        commands[main_][sub_]("Hello World")
+        print(main_, sub_, commands[main_][sub_])
+        commands[main_][sub_]()
 
     def new_options(self, _i: int):
-        pass
+        print("New option", _i)
+        # _i = 0 => open new file
+        # _i = 1 => open a new window
+
+        if _i == 0:
+            file_name = askopenfilename()
+            with open(file_name, "r") as f:
+                contents = f.read()
+                self.text_area.delete(0.0, END)
+                self.text_area.insert(0.0, contents)
+                # TODO: change the title
+                # TODO: Ask the user to save before changing the file
+        if _i == 1: ...
 
     def save_options(self, _i: int):
         pass
